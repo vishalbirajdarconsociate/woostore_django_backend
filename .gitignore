@@ -1,0 +1,8 @@
+*.pyc
+*.pys
+test_env
+venv
+__pycache__
+migrations
+useradmin/migrations
+useradmin/__pycache__
