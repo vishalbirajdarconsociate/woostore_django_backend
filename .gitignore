@@ -1,8 +1,6 @@
 *.pyc
 *.pys
 test_env
-venv
+env
 __pycache__
 migrations
-useradmin/migrations
-useradmin/__pycache__
