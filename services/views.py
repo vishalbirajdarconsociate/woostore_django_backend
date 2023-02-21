@@ -6,11 +6,31 @@ from django.http import FileResponse
 import base64
 
 
-# Create your views here.
+# convert img file from database/static folder to base64 string
+def imgToBase64(data):
+    with data as image_file:
+        image_data = base64.b64encode(image_file.read()).decode('utf-8')
+    return image_data
+
+
 @api_view(['GET'])
 def index(request):
     data=Customer.objects.get(customerFirstName='q')
-    print()
-    with data.customerImg as image_file:
-        image_data = base64.b64encode(image_file.read()).decode('utf-8')
-    return Response({"s":image_data})
+    return Response({"s":imgToBase64(data.customerImg)})
+
+@api_view(["GET"])
+def categotyData(request):
+    result={}
+    for i in Category.objects.all():
+        li=[]
+        prod={}
+        for j in ProductCategory.objects.filter(category=i.pk):
+            data=Product.objects.get(pk=j.product.pk)
+            prod['name']=data.productName
+            prod['price']=data.productPrice
+            prod['img']=imgToBase64(data.productImg)
+            li.append(prod)
+        result['category_name']=i.categoryName
+        result['category_img']=imgToBase64(i.categoryImg)
+        result['products']=li
+    return Response(result)
