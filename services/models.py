@@ -35,7 +35,7 @@ class ProductCategory(models.Model):
     product=models.ForeignKey(Product, on_delete=models.CASCADE)
     category=models.ForeignKey(Category, on_delete=models.CASCADE)
     def __str__(self):
-        return self.product.productName+"_"+self.category.categoryName
+        return self.product.productName+" | "+self.category.categoryName
 
     
 class Reviews(models.Model):
@@ -44,7 +44,7 @@ class Reviews(models.Model):
     review=models.TextField()
     rating=models.FloatField()
     def __str__(self):
-        return self.product.productName+"_"+self.customer.customerFirstName
+        return self.product.productName+" | "+self.customer.customerFirstName
 
     
 class PaymentMethods(models.Model):
@@ -75,4 +75,7 @@ class CartContain(models.Model):
 
 class ProductImages(models.Model):
     product=models.ForeignKey(Product, on_delete=models.CASCADE)
-    models.ImageField(upload_to='static/img/product_images/', height_field=None, width_field=None, max_length=None)
+    image=models.ImageField(upload_to='static/img/product_images/', height_field=None, width_field=None, max_length=None)
+    def __str__(self):
+        return self.product.productName+" | image"+str(ProductImages.objects.filter(product=self.product.pk).count())
+    
