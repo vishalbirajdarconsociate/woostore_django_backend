@@ -9,6 +9,8 @@ class Customer(models.Model):
     customerEmail=models.CharField(max_length=254)
     customerAddress=models.TextField()
     customerImg=models.ImageField(upload_to='static/img/customer/', height_field=None, width_field=None, max_length=None)
+    def __str__(self):
+        return self.customerFirstName
 
 
 class Product(models.Model):
@@ -18,16 +20,22 @@ class Product(models.Model):
     productDesc=models.TextField()
     productStock=models.IntegerField()
     productImg=models.ImageField( upload_to='static/img/product/', height_field=None, width_field=None, max_length=None)
+    def __str__(self):
+        return self.productName
 
 class Category(models.Model):
     categoryName=models.CharField( max_length=50)
     categoryDesc=models.TextField()
     categoryImg=models.ImageField( upload_to='static/img/Category/', height_field=None, width_field=None, max_length=None)
+    def __str__(self):
+        return self.categoryName
 
 
 class ProductCategory(models.Model):
     product=models.ForeignKey(Product, on_delete=models.CASCADE)
     category=models.ForeignKey(Category, on_delete=models.CASCADE)
+    def __str__(self):
+        return self.product.productName+"_"+self.category.categoryName
 
     
 class Reviews(models.Model):
@@ -35,18 +43,24 @@ class Reviews(models.Model):
     product=models.ForeignKey(Product, on_delete=models.CASCADE)
     review=models.TextField()
     rating=models.FloatField()
+    def __str__(self):
+        return self.product.productName+"_"+self.customer.customerFirstName
 
     
 class PaymentMethods(models.Model):
     methodName=models.CharField( max_length=50)
     methodDesc=models.CharField( max_length=50)
     getway=models.CharField( max_length=50)
+    def __str__(self):
+        return self.methodName
 
 
 class Discount(models.Model):
     discountCode=models.CharField( max_length=50)
     discountValue=models.FloatField()
     discountDesc=models.TextField()
+    def __str__(self):
+        return self.discountCode
 
     
 class Cart(models.Model):
@@ -59,3 +73,6 @@ class CartContain(models.Model):
     quantity=models.IntegerField()
 
 
+class ProductImages(models.Model):
+    product=models.ForeignKey(Product, on_delete=models.CASCADE)
+    models.ImageField(upload_to='static/img/product_images/', height_field=None, width_field=None, max_length=None)

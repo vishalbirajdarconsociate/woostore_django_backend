@@ -20,7 +20,8 @@ def index(request):
 
 @api_view(["GET"])
 def categotyData(request):
-    result={}
+    cat={}
+    catli=[]
     for i in Category.objects.all():
         li=[]
         prod={}
@@ -30,7 +31,8 @@ def categotyData(request):
             prod['price']=data.productPrice
             prod['img']=imgToBase64(data.productImg)
             li.append(prod)
-        result['category_name']=i.categoryName
-        result['category_img']=imgToBase64(i.categoryImg)
-        result['products']=li
-    return Response(result)
+        cat['category_name']=i.categoryName
+        cat['category_img']=imgToBase64(i.categoryImg)
+        cat['products']=li
+        catli.append(cat)
+    return Response({"category":catli})
