@@ -2,7 +2,8 @@ from django.shortcuts import render
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from .models import *
-from django.db.models import Avg
+from django.db.models import Avg,Q
+from django.http import JsonResponse
 import base64
 
 
@@ -12,11 +13,38 @@ def imgToBase64(data):
         image_data = base64.b64encode(image_file.read()).decode('utf-8')
     return image_data
 
+# get user info of user currently logged in the session
+def getUser(id):
+    data={}
+    if id is not None:
+        cust=Customer.objects.get(pk=id)
+        data["FirstName"]=cust.customerFirstName
+        data["LastName"]=cust.customerLastName
+        data["Username"]=cust.customerUsername
+        data["Password"]=cust.customerPassword
+        data["Email"]=cust.customerEmail
+        data["Address"]=cust.customerAddress
+        # data["Img"]=imgToBase64(cust.customerImg)
+    return data
 
-# @api_view(['GET'])
-# def index(request):
-#     data=Customer.objects.get(customerFirstName='q')
-#     return Response({"s":imgToBase64(data.customerImg)})
+@api_view(['POST'])
+def userLogin(request):
+    username = request.data.get('username')
+    password = request.data.get('password')
+    try:
+        user=Customer.objects.get(Q(customerPassword=password)&(Q(customerUsername=username)|Q(customerEmail=username)))
+        request.session['user_id'] = user.pk
+    except Customer.DoesNotExist:
+        return Response({"err":"user not found"})
+    return Response({"S":2})
+
+def logout(request):
+    try:
+        del request.session['user_id']
+    except:
+        pass
+        return JsonResponse({"msg":"not logged in"})
+    return JsonResponse({"msg":"logged out"})
 
 @api_view(["GET"])
 def allCategories(request):
@@ -79,6 +107,7 @@ def prddetail(request,pid):
 
 @api_view(["GET"])
 def allCategotyData(request):
+    user_id = request.session.get('user_id')
     catli=[]
     for i in Category.objects.all():
         cat={}
