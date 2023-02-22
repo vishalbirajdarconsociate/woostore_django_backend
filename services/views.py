@@ -18,13 +18,14 @@ def getUser(id):
     data={}
     if id is not None:
         cust=Customer.objects.get(pk=id)
+        data["id"]=cust.pk
         data["FirstName"]=cust.customerFirstName
         data["LastName"]=cust.customerLastName
         data["Username"]=cust.customerUsername
         data["Password"]=cust.customerPassword
         data["Email"]=cust.customerEmail
         data["Address"]=cust.customerAddress
-        # data["Img"]=imgToBase64(cust.customerImg)
+        data["Img"]=imgToBase64(cust.customerImg)
     return data
 
 @api_view(['POST'])
@@ -34,17 +35,19 @@ def userLogin(request):
     try:
         user=Customer.objects.get(Q(customerPassword=password)&(Q(customerUsername=username)|Q(customerEmail=username)))
         request.session['user_id'] = user.pk
+        return Response(getUser(user.pk))
     except Customer.DoesNotExist:
         return Response({"err":"user not found"})
-    return Response({"S":2})
+    # return Response({"S":2})
 
 def logout(request):
     try:
+        id=str(request.session['user_id'])
         del request.session['user_id']
     except:
         pass
         return JsonResponse({"msg":"not logged in"})
-    return JsonResponse({"msg":"logged out"})
+    return JsonResponse({"msg":id+" logged out"})
 
 @api_view(["GET"])
 def allCategories(request):
@@ -108,6 +111,7 @@ def prddetail(request,pid):
 @api_view(["GET"])
 def allCategotyData(request):
     user_id = request.session.get('user_id')
+    print(getUser(user_id))
     catli=[]
     for i in Category.objects.all():
         cat={}
