@@ -4,6 +4,7 @@ from rest_framework.response import Response
 from .models import *
 from django.db.models import Avg,Q
 from django.http import JsonResponse
+from .serializers import *
 import base64
 
 
@@ -27,6 +28,34 @@ def getUser(id):
         data["Address"]=cust.customerAddress
         data["Img"]=imgToBase64(cust.customerImg)
     return data
+
+@api_view(['POST'])
+def registerUser(request):
+    uname=request.data.get('uname')
+    email=request.data.get('email')
+    if Customer.objects.filter(Q(customerUsername=uname)).exists():
+        return Response({"err":"username already exist"})
+    if Customer.objects.filter(customerEmail=email).exists():
+        return Response({"err":"email already in use"})
+    data={
+    'customerFirstName':request.data.get('fname'),
+    'customerLastName':request.data.get('lname'),
+    'customerUsername':uname,
+    'customerPassword':request.data.get('pas'),
+    'customerEmail':email,
+    'customerAddress':request.data.get('addr'),
+    'customerImg':request.data.get('img') 
+    }
+    result=CustomerSerializer(data=data, partial=True)
+    if result.is_valid():
+        print("save")
+    else:
+        del data["customerImg"]
+        result=CustomerSerializer(data=data, partial=True)
+        if result.is_valid():
+            print("save2")
+    print(result.errors)
+    return JsonResponse({"msg":"user created"})
 
 @api_view(['POST'])
 def userLogin(request):
