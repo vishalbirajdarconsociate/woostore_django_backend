@@ -85,8 +85,17 @@ def productByCategoty(request,catid):
 
 
 @api_view(["GET"])
-def prddetail(request,pid=0):
-    data=Product.objects.filter(pk=pid) if pid!=0 else Product.objects.all()
+def productDetails(request,pid=0,search=''):
+    if pid!=0:
+        data=Product.objects.filter(pk=pid)
+    elif len(search)!=0:
+        data=Product.objects.filter(Q(productName__icontains=search)
+                                    |Q(productDesc__icontains=search)
+                                    |Q(pk__in=(ProductCategory.objects.filter(category__in=(
+                                        Category.objects.filter(categoryName__icontains=search)
+                                    ))))).distinct()
+    else:
+        data=Product.objects.all()
     li=[]
     for i in data:
         dict={}
@@ -115,28 +124,3 @@ def prddetail(request,pid=0):
         li.append(dict)
     return Response({"data":li})
 
-
-@api_view(["GET"])
-def allCategotyData(request):
-    user_id = request.session.get('user_id')
-    print(getUser(user_id))
-    catli=[]
-    for i in Category.objects.all():
-        cat={}
-        li=[]
-        for j in ProductCategory.objects.filter(category=i.pk):
-            prod={}
-            data=Product.objects.get(pk=j.product.pk)
-            prod['name']=data.productName
-            prod['price']=data.productPrice
-            prod['thumb']=imgToBase64(data.productImg)
-            prodli=[]
-            for index,imgs in enumerate(ProductImages.objects.filter(product=j.product.pk)):
-                prodli.append(imgToBase64(imgs.image))
-            prod['images']=prodli
-            li.append(prod)
-        cat['category_name']=i.categoryName
-        cat['category_img']=imgToBase64(i.categoryImg)
-        cat['products']=li
-        catli.append(cat)
-    return Response({"category":catli})
