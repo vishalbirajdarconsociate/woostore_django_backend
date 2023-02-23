@@ -5,8 +5,9 @@ urlpatterns = [
     # path('',index),
     path('login/',userLogin),
     path('logout/',logout),
-    path('cat',allCategotyData),
-    path('catdata',allCategories),
+    path('allCategories/',allCategories),
+    path('allCategories/<int:id>',allCategories),
     path("catprd/<int:catid>",productByCategoty),
+    path("prd/",prddetail),
     path("prd/<int:pid>",prddetail),
 ]

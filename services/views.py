@@ -45,23 +45,30 @@ def logout(request):
         id=str(request.session['user_id'])
         del request.session['user_id']
     except:
-        pass
         return JsonResponse({"msg":"not logged in"})
-    return JsonResponse({"msg":id+" logged out"})
+    return JsonResponse({"msg":"logged out","data":getUser(id)})
 
 @api_view(["GET"])
-def allCategories(request):
-    data=Category.objects.all()
+def allCategories(request,id=0):
     li=[]
-    for i in data:
-        dict={
-            "id": i.pk,
-            "categoryName": i.categoryName,
-            "categoryDesc": i.categoryDesc,
-            "categoryImg": imgToBase64(i.categoryImg)
-        }
-        li.append(dict)
-    return Response(li)
+    if id==0:
+        for i in Category.objects.all():
+            dict={
+                "id": i.pk,
+                "categoryName": i.categoryName,
+                "categoryDesc": i.categoryDesc,
+                # "categoryImg": imgToBase64(i.categoryImg)
+            }
+            li.append(dict)
+        return Response({"data":li})
+    data=Category.objects.get(pk=id)
+    dict={
+    "id": data.pk,
+    "categoryName": data.categoryName,
+    "categoryDesc": data.categoryDesc,
+    # "categoryImg": imgToBase64(i.categoryImg)
+    }
+    return Response({"data":dict})
 
 
 @api_view(["GET"])
@@ -72,19 +79,20 @@ def productByCategoty(request,catid):
             "id":i.product.pk,
             "name":i.product.productName,
             "price":i.product.productPrice,
-            "img":imgToBase64(i.product.productImg)
+            # "img":imgToBase64(i.product.productImg)
         })
-    return Response(li)
+    return Response({"data":li})
 
 
 @api_view(["GET"])
-def prddetail(request,pid):
+def prddetail(request,pid=0):
+    data=Product.objects.filter(pk=pid) if pid!=0 else Product.objects.all()
     li=[]
-    for i in Product.objects.filter(pk=pid):
+    for i in data:
         dict={}
         dict['name']=i.productName
         dict['price']=i.productPrice
-        dict['thumb']=imgToBase64(i.productImg)
+        # dict['thumb']=imgToBase64(i.productImg)
         cat=[]
         for j in ProductCategory.objects.filter(product=i.pk):
             cat.append(j.category.categoryName)
@@ -95,8 +103,7 @@ def prddetail(request,pid):
         imgli=[]
         for j in ProductImages.objects.filter(product=i.pk):
             imgli.append(imgToBase64(j.image))
-        dict['images']=imgli
-        li.append(dict)
+        # dict['images']=imgli
         revli=[]
         for j in Reviews.objects.filter(product=i.pk):
             revli.append({
@@ -104,8 +111,9 @@ def prddetail(request,pid):
                 "img":imgToBase64(j.customer.customerImg),
                 "review":j.review
             })
-        dict['reviews']=revli
-    return Response(li)
+        # dict['reviews']=revli
+        li.append(dict)
+    return Response({"data":li})
 
 
 @api_view(["GET"])
