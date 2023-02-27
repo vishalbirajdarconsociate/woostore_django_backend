@@ -7,6 +7,7 @@ class Customer(models.Model):
     customerUsername=models.CharField( max_length=100)
     customerPassword=models.CharField( max_length=100)
     customerEmail=models.CharField(max_length=254)
+    
     customerAddress=models.TextField()
     customerImg=models.ImageField(upload_to='static/img/customer/', height_field=None, width_field=None, max_length=None,default='static/img/default/customer/default_user.png',blank=True)
     def __str__(self):

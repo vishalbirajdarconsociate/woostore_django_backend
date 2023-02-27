@@ -67,8 +67,18 @@ def userLogin(request):
         return Response(getUser(user.pk))
     except Customer.DoesNotExist:
         return Response({"err":"user not found"})
-    # return Response({"S":2})
 
+@api_view(['POST'])
+def newPassword(request):
+    username = request.data.get('username')
+    email = request.data.get('email')
+    password = request.data.get('password')
+    user = Customer.objects.filter(customerUsername=username,customerEmail=email)
+    if user.exists():
+        print(user.values()[0]['customerPassword'])
+        return Response({"S":"change"})
+    else:
+        return Response({"S":"not change"})
 def logout(request):
     try:
         id=str(request.session['user_id'])
@@ -130,7 +140,7 @@ def productDetails(request,pid=0,search=''):
         dict={}
         dict['name']=i.productName
         dict['price']=i.productPrice
-        # dict['thumb']=imgToBase64(i.productImg)
+        dict['thumb']=imgToBase64(i.productImg)
         cat=[]
         for j in ProductCategory.objects.filter(product=i.pk):
             cat.append(j.category.categoryName)
@@ -141,7 +151,7 @@ def productDetails(request,pid=0,search=''):
         imgli=[]
         for j in ProductImages.objects.filter(product=i.pk):
             imgli.append(imgToBase64(j.image))
-        # dict['images']=imgli
+        dict['images']=imgli
         revli=[]
         for j in Reviews.objects.filter(product=i.pk):
             revli.append({
@@ -152,4 +162,3 @@ def productDetails(request,pid=0,search=''):
         # dict['reviews']=revli
         li.append(dict)
     return Response({"data":li})
-
