@@ -26,7 +26,8 @@ def getUser(id):
         data["Password"]=cust.customerPassword
         data["Email"]=cust.customerEmail
         data["Address"]=cust.customerAddress
-        data["Img"]=imgToBase64(cust.customerImg)
+        data["Img"]=str(cust.customerImg)
+        # data["Img"]=imgToBase64(cust.customerImg)
     return data
 
 @api_view(['POST'])
@@ -96,7 +97,7 @@ def allCategories(request,id=0):
                 "id": i.pk,
                 "categoryName": i.categoryName,
                 "categoryDesc": i.categoryDesc,
-                # "categoryImg": imgToBase64(i.categoryImg)
+                "categoryImg": str(i.categoryImg)
             }
             li.append(dict)
         return Response({"data":li})
@@ -105,7 +106,8 @@ def allCategories(request,id=0):
     "id": data.pk,
     "categoryName": data.categoryName,
     "categoryDesc": data.categoryDesc,
-    # "categoryImg": imgToBase64(i.categoryImg)
+    # "categoryImg": imgToBase64(i.categoryImg),
+    "categoryImg": str(data.categoryImg)
     }
     return Response({"data":dict})
 
@@ -118,7 +120,8 @@ def productByCategoty(request,catid):
             "id":i.product.pk,
             "name":i.product.productName,
             "price":i.product.productPrice,
-            # "img":imgToBase64(i.product.productImg)
+            "img":str(i.product.productImg)
+            # "img":i.product.productImg
         })
     return Response({"data":li})
 
@@ -150,13 +153,13 @@ def productDetails(request,pid=0,search=''):
         dict['rating']=dict['rating']['rating__avg']
         imgli=[]
         for j in ProductImages.objects.filter(product=i.pk):
-            imgli.append(imgToBase64(j.image))
+            imgli.append(str(j.image))
         dict['images']=imgli
         revli=[]
         for j in Reviews.objects.filter(product=i.pk):
             revli.append({
                 "user":j.customer.customerFirstName,
-                "img":imgToBase64(j.customer.customerImg),
+                "img":str(j.customer.customerImg),
                 "review":j.review
             })
         # dict['reviews']=revli
